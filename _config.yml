@@ -1,16 +1,16 @@
-title: Jekyll Vision Casper Theme
-email: hugo.colombo23@gmail.com
+title: bsauce's blog, pwning to make friends
+email: fengqiuluo@outlook.com
 author:
-  picture: http://site.hugocarreira.me/assets/img/compressed/hugo.jpg #URL FORMAT
-  name: Hugo Carreira
-  location: Rio de Janeiro - Brazil
-  description: "19 years old, studying computer science"  
+  picture: http://bsauce.github.io/assets/img/compressed/hugo.jpg #URL FORMAT
+  name: bsauce
+  location: Beijing - China
+  description: "Look up at the stars, and stand on solid ground."  
 description: only my simple vision of casper theme
 baseurl: "/"
-url: https://hugocarreira.github.io/jekyll-vision-casper-theme
-twitter_username: hugocolombo23
-github_username:  hugocarreira
-github_url: https://hugocarreira.github.io/jekyll-vision-casper-theme/
+url: http://bsauce.github.io
+twitter_username: none
+github_username:  bsauce
+github_url: https://github.com/bsauce
 
 # Build settings
 permalink: :title
