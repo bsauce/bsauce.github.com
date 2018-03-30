@@ -1,0 +1,15 @@
+/* Override prism.js css */
+pre, pre[class*="language-"] {
+    margin-bottom: 1.8em !important; 
+}
+
+
+/* Custom CSS for GitHub link in about page */
+.github-button-container {
+    display: flex;
+    justify-content: center;
+
+    iframe {
+        min-height: inherit !important;
+    }
+}
