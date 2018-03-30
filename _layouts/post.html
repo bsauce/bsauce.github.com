@@ -1,37 +1,35 @@
 ---
+title: ''
 layout: default
 ---
+
 <main class="content" role="main">
-    <article class="post single-post" itemscope itemtype="http://schema.org/BlogPosting">
 
-        <header class="post-header short-diver">
-            <h1 class="post-title" itemprop="name headline">{{ page.title }}</h1>
-            <section class="post-meta">
-                <time datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">{{ page.date | date: "%b %-d, %Y" }}</time>
-                on
-                {% for tag in page.tags limit:5 %}
-                <span>{{ tag }}</span>
-                {% endfor %}
-            </section>
-        </header>
+  <article class="post">
 
-        <section class="post-content short-diver" itemprop="articleBody">
-            {{content}}
-        </section>
+    <header class="post-header">
+      <h1 class="post-title">{{ page.title }}</h1>
+      <section class="post-meta">
+        <time class="post-date" datetime="{{ page.date | date:"%Y-%m-%d" }}">{{ post.date | date: "%-d of %b of %Y" }}</time>
+      </section>
+    </header>
 
-        <footer class="post-footer">
-            {% include authorinfo.html param=page.author %}
-        </footer>
+    <section class="post-content">
+      {{content}}
+    </section>
 
-        {% if page.comments %}
-    		<div class="comments">
-    			<a href="javascript:;" class="view-comments"><i class="fa fa-comments"></i>View Comments...</a>
-    			<div id="disqus_thread"></div>
-    		</div>
-    		{% endif %}
+    <footer class="post-footer">
+      <figure class="author-image">
+        <span class="img" style="background-image: url('{{ site.author.picture }}')">
+          <span class="hidden">{{ site.author.name }}'s Picture</span>
+        </span>
+      </figure>
+      <section class="author">
+        <h4>{{ site.author.name }}</h4>
+        <p>{{ site.author.description }}</p>
+      </section>
+    </footer>
 
-    </article>
+  </article>
+
 </main>
-
-{% include photoswipe.html %}
-{% include post_scripts.html %}

@@ -1,27 +1,18 @@
-{% if page.cover %}
-{% assign cover = page.cover %}
-{% elsif site.cover %}
-{% assign cover = site.cover %}
-{% endif %}
-
-<header class="main-header detail-page image-bg {% if cover %} has-cover" style="background-image: url({{ cover | absolute_url }})" {% else %} no-cover" {% endif %}>
-    <h1 class="page-title"><a href="{{ "/" | absolute_url }}" title="{{ site.title }}">{{ site.title }}</a></h1>
-    <h2 class="page-description">{{ site.subtitle }}</h2>
-    <div class="nav">
-            <a class="page-link" href="{{ "/" | absolute_url }}" title="Home">Home</a>
-
-            {% assign pages = site.pages | sort:"weight"  %}
-            {% for my_page in pages %}
-
-            {% if my_page.menutitle %}
-            {% assign title = my_page.menutitle %}
-            {% elsif site.title %}
-            {% assign title = my_page.title %}
-            {% endif %}
-
-            {% if title and my_page.visible != false %}
-            <a class="page-link" href="{{ my_page.url | absolute_url }}" title="{{ title }}">{{ title }}</a>
-            {% endif %}
-            {% endfor %}
+<header class="main-header" style="background-image: url({{ site.github_url }}assets/images/testimg-home-1.jpg)">
+  <!--<nav class="main-nav overlay clearfix">
+    <a class="blog-logo" href="/"><img src="/assets/images/Ghost-Transparent-for-DARK-BG.png" alt="Finding The Way Home" /></a>
+    <a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+  </nav>-->
+  <div class="vertical">
+    <div class="main-header-content inner">
+      {% if page.title != "" %}
+      <h1 class="page-title">{{ page.title }}</h1>
+      <h2 class="page-description">{{ page.description }}</h2>
+      {% else %}
+      <h1 class="page-title">{{ site.title }}</h1>
+      <h2 class="page-description">{{ site.description }}</h2>
+      {% endif %}
     </div>
+  </div>
+  <a class="scroll-down icon-arrow-left" href="#content" data-offset="-45"><span class="hidden">Scroll Down</span></a>
 </header>
