@@ -14,7 +14,7 @@ language:         "en" # default language of the blog. Language codes: http://ww
 
 baseurl:          "" # the subpath of your site, e.g. /blog
 url:              "http://bsauce.github.io" # the base hostname & protocol for your site. Have a look at robots.txt as well!
-permalink:        /blog/:categories/:title
+permalink:        /blog/:title#/blog/:categories/:title
 cover:            /assets/mountain-cover.jpg
 disqus_shortname: "jekylldecent"
 
