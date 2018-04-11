@@ -1,26 +1,19 @@
 ---
-title: ''
-layout: default
+layout: main
 ---
+{% for post in paginator.posts %}
+<article class="post">
+  {% if post.img %}
+    <a class="post-thumbnail" style="background-image: url({{"/assets/img/" | prepend: site.baseurl | append : post.img}})" href="{{post.url | prepend: site.baseurl}}"></a>
+  {% else %}
+  {% endif %}
+  <div class="post-content">
+    <h2 class="post-title"><a href="{{post.url | prepend: site.baseurl}}">{{post.title}}</a></h2>
+    <p>{{ post.content | strip_html | truncatewords: 15 }}</p>
+    <span class="post-date">{{post.date | date: '%Y, %b %d'}}&nbsp;&nbsp;&nbsp;—&nbsp;</span>
+    <span class="post-words">{% capture words %}{{ post.content | number_of_words }}{% endcapture %}{% unless words contains "-" %}{{ words | plus: 250 | divided_by: 250 | append: " minute read" }}{% endunless %}</span>
+  </div>
+</article>
+{% endfor %}
 
-  {% for post in site.posts %}
-    <article class="post">
-      <header class="post-header">
-        <h2 class="post-title"><a href="{{ site.github_url }}{{ post.url }}">{{ post.title }}</a></h2>
-      </header>
-      <section class="post-excerpt">
-        <p>{{ post.description }}</p>
-      </section>
-      <footer class="post-meta">
-        by <a href="{{ site.github_url }}about">{{ site.author.name }}</a> <img class="author-thumb" src="{{ site.author.picture }}" alt="{{ site.author.name }}">
-        <time class="post-date" datetime="{{ post.date | date: "%-Y-%m-%d" }}">{{ post.date | date: "%d %b %Y" }}</time>
-      </footer>
-    </article>
-  {% endfor %}
-
-  <nav class="pagination" role="navigation">
-    <span class="page-number">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
-    {% if paginator.next_page %}
-    <a class="older-posts" href="{{ paginator.next_page_path }}">Older Posts <span aria-hidden="true">&rarr;</span></a>
-    {% endif %}
-  </nav>
+{% include pagination.html %}
