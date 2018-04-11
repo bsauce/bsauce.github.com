@@ -10,7 +10,7 @@ tags: [pwn]
 
 
 
-##1.背景
+## 1.背景
 
 以下代码先将unsorted bin中的块移走然后继续处理。
 
@@ -237,12 +237,11 @@ tags: [pwn]
 
 可以看到，除了（1）和（2-1），其他步骤都不会返回。若在unsorted bin中没有找到合适的chunk，将遍历small bin和large bin，找到最小的适合的块，分割该块并把剩余块插入到unsorted bin。还是没找到，则切割top chunk。
 
-##2.large bin管理
+## 2.large bin管理
 
 根据实例来看看：
-
 ```C
-    //gcc large.c -o large -no-pie
+//gcc large.c -o large -no-pie
     #include<stdlib.h>
      
     int main()
@@ -274,7 +273,6 @@ tags: [pwn]
         return 0;
     }
 ```
-
 在free(p9)之后，我们插入2个块到unsorted bin：
 
 ```C
@@ -406,7 +404,7 @@ tags: [pwn]
         return 0;
     }
 ```
-###2-3-2-1
+### 2-3-2-1
 
 代码中，我们把large bin中最小块p1的size篡改为0x421，这样large bin中就不是递减排列的了（0x421>0x410）。把p11放进去的时候，直接插入到了尾部。
 ```C
@@ -443,7 +441,7 @@ tags: [pwn]
     0x602fa0:   0x00007ffff7dd1f68  0x0000000000602000
     0x602fb0:   0x0000000000602430  0x0000000000602000
 ```
-###2-3-2-2-1
+### 2-3-2-2-1
 
 这里没有篡改，移除块的大小是0x411，比last chunk(p5)大，和第1个块相等(p1)，所以p11被插入到第1个块后面。
 ```C
@@ -479,7 +477,7 @@ tags: [pwn]
     0x602010:   0x00007ffff7dd1f68  0x0000000000602870
     0x602020:   0x0000000000602430  0x0000000000602430
 ```
-###2-3-2-2-2
+### 2-3-2-2-2
 
 代码中，我们把large bin中最小块p3的size篡改为0x3f1，这样large bin中就不是递减排列的了p3 < p1（0x3f1<0x401）。把p11放进去的时候，直接插入到了首部。p11的fd_nextsize和bk_nextsize也设置好。
 ```C
@@ -516,7 +514,7 @@ tags: [pwn]
     0x602010:   0x00007ffff7dd1f68  0x0000000000602870
     0x602020:   0x0000000000602f90  0x0000000000602430
 ```
-##3.Large bin利用
+## 3.Large bin利用
 
 主要是利用步骤2-3-2-2的代码：
 ```C
@@ -637,7 +635,7 @@ tags: [pwn]
 ```
 
 
-##参考：
+## 参考：
 
 https://dangokyo.me/2018/04/07/a-revisit-to-large-bin-in-glibc/
 
