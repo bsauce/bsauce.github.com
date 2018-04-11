@@ -1,7 +1,7 @@
 title: bsauce's blog, pwning to make friends
 description: > # this means to ignore newlines until "baseurl:"
   I am interested in computer security, welcome to communicate with me.
-permalink: ':title/'
+permalink: #':title/'
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://bsauce.github.com" # the base hostname & protocol for your site, e.g. http://example.com
 site-twitter: #if your site has a twitter account, enter it here
