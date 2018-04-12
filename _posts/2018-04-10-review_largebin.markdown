@@ -3,7 +3,7 @@ layout: post
 title: 解读Glibc中的Large Bin插入过程
 date: 2018-04-10 13:32:20 +0300
 description: 
-img: i-rest.jpg # Add image post (optional)
+img: kcah.jpg # Add image post (optional)
 tags: [pwn]
 ---
 研究下ptmalloc中的_int_malloc代码部分，看看unsorted bin中空闲块是怎样插入到largebin的。
@@ -14,7 +14,8 @@ tags: [pwn]
 
 以下代码先将unsorted bin中的块移走然后继续处理。
 
-```C
+{% highlight c %}
+```
 /*
          Process recently freed or remaindered chunks, taking one only if
          it is exact fit, or, if this a small request, the chunk is remainder from
@@ -208,6 +209,7 @@ tags: [pwn]
             }
     #endif
 ```
+{% endhighlight  %}
 整段代码在1个while循环里，每次迭代中，会优先取用unsorted bin中最近一次释放的块，当unsorted bin中没有可用块后才终止循环。注：遍历unsorted bin是从最后1个块开始，通过bk指针往前遍历。
 
 具体步骤如下：
@@ -240,7 +242,8 @@ tags: [pwn]
 ## 2.large bin管理
 
 根据实例来看看：
-```C
+{% highlight c %}
+```
 //gcc large.c -o large -no-pie
     #include<stdlib.h>
      
@@ -273,9 +276,11 @@ tags: [pwn]
         return 0;
     }
 ```
+{% endhighlight %}
 在free(p9)之后，我们插入2个块到unsorted bin：
 
-```C
+{% highlight c %}
+```
     //main_arena status
     unsortedbin
     all: 0x602e10 —▸ 0x602cb0 ◂— 0x7ffff7dd1b78
@@ -294,9 +299,11 @@ tags: [pwn]
     0x602e20:   0x0000000000602cb0  0x00007ffff7dd1b78
     0x602e30:   0x0000000000000000  0x0000000000000000
 ```
+{% endhighlight%}
 在21行p=malloc(0x60)之后，0x602cb0和0x602e10处的块将被插入到相应的small bin。根据最适合策略，0x130的块从small bin取出，剩余块再次被插入到unsorted bin。
 
-```C
+{% highlight c %}
+```
     unsortedbin
     all: 0x602d20 ◂— 0x7ffff7dd1b78
     smallbins
@@ -310,11 +317,13 @@ tags: [pwn]
     0x602e10:   0x0000000000000000  0x0000000000000151
     0x602e20:   0x00007ffff7dd1cb8  0x00007ffff7dd1cb8
 ```
+{% endhighlight %}
 在22行p=malloc(0xb0)过后，0x602d20这个块直接从unsorted bin取出并返回，这样只剩0x602e10这个small bin中的块。
 
 在26行free(p5)之后，3个large块被放进unsorted bin。
 
-```C
+{% highlight c %}
+```
     //main_arena
     unsortedbin
     all: 0x602870 —▸ 0x602430 —▸ 0x602000 ◂— 0x7ffff7dd1b78
@@ -333,8 +342,10 @@ tags: [pwn]
     0x602000:   0x0000000000000000  0x0000000000000401
     0x602010:   0x00007ffff7dd1b78  0x0000000000602430
 ```
+{% endhighlight  %}
 28行p=malloc(0x110)之后，0x602000（0x400）, 0x602430（0x410） 和 0x602870（0x410） 先被插入到1个large bin，分配器将先在small bin中寻找到合适的块0x602e10。先把0x602e10从small bin中移除，分割为requested size和remainder chunk。
-```C
+{% highlight c %}
+```
     //main_arena
     unsortedbin
     all: 0x602f30 ◂— 0x7ffff7dd1b78
@@ -355,8 +366,10 @@ tags: [pwn]
     0x602000:   0x0000000000000000  0x0000000000000401
     0x602010:   0x00007ffff7dd1f68  0x0000000000602870
 ```
+{% endhighlight %}
 可以看到，large bin中的chunk是递减排列的，但问题是，在从unsorted bin插入到large bin的时候，这里没有安全检查（检查是否是递减排列），这里我们再看看以下代码，来体会下步骤（2-3-2-1，2-3-2-2-1，2-3-2-2-2）。
-```C
+{% highlight c %}
+```
     //gcc largeShow.c -o largeShow -no-pie
     #include<stdlib.h>
      
@@ -404,10 +417,12 @@ tags: [pwn]
         return 0;
     }
 ```
+{% endhighlight %}
 ### 2-3-2-1
 
 代码中，我们把large bin中最小块p1的size篡改为0x421，这样large bin中就不是递减排列的了（0x421>0x410）。把p11放进去的时候，直接插入到了尾部。
-```C
+{% highlight c %}
+```
     //free(p11);
     unsortedbin
     all: 0x602f90 —▸ 0x602e80 ◂— 0x7ffff7dd1b78
@@ -441,10 +456,12 @@ tags: [pwn]
     0x602fa0:   0x00007ffff7dd1f68  0x0000000000602000
     0x602fb0:   0x0000000000602430  0x0000000000602000
 ```
+{% endhighlight %}
 ### 2-3-2-2-1
 
 这里没有篡改，移除块的大小是0x411，比last chunk(p5)大，和第1个块相等(p1)，所以p11被插入到第1个块后面。
-```C
+{% highlight c %}
+```
     //free(p11);
     unsortedbin
     all: 0x602f90 —▸ 0x602e80 ◂— 0x7ffff7dd1b78
@@ -477,10 +494,12 @@ tags: [pwn]
     0x602010:   0x00007ffff7dd1f68  0x0000000000602870
     0x602020:   0x0000000000602430  0x0000000000602430
 ```
+{% endhighlight %}
 ### 2-3-2-2-2
 
 代码中，我们把large bin中最小块p3的size篡改为0x3f1，这样large bin中就不是递减排列的了p3 < p1（0x3f1<0x401）。把p11放进去的时候，直接插入到了首部。p11的fd_nextsize和bk_nextsize也设置好。
-```C
+{% highlight c %}
+```
     //free(p11);
     unsortedbin
     all: 0x602f90 —▸ 0x602e80 ◂— 0x7ffff7dd1b78
@@ -514,9 +533,11 @@ tags: [pwn]
     0x602010:   0x00007ffff7dd1f68  0x0000000000602870
     0x602020:   0x0000000000602f90  0x0000000000602430
 ```
+{% endhighlight %}
 ## 3.Large bin利用
 
 主要是利用步骤2-3-2-2的代码：
+{% highlight c %}
 ```C
     else
     {
@@ -533,9 +554,11 @@ tags: [pwn]
         fwd->bk = victim;
         bck->fd = victim;
 ```
+{% endhighlight %}
 和unsorted bin attack一样，如果在fwd->bk处构造伪地址fake_chunk，就能修改fake_chunk->fd的值。当然，还要考虑到fd_nextsize和bk_nextsize的值。
 
 以下代码作为示例：
+{% highlight c %}
 ```C
     #include<stdio.h>
     #include<stdlib.h>
@@ -583,7 +606,9 @@ tags: [pwn]
         return 0;
     }
 ```
+{% endhighlight %}
 假设这里存在内存溢出漏洞，能够覆盖large bin中第1个块的size为0x3f1，能把fd,bk,fd_nextsize,bk_nextsize设置为栈地址。
+{% highlight c %}
 ```C
     //free(p11);
     unsortedbin
@@ -633,10 +658,10 @@ tags: [pwn]
     0x602850:   0x00007fffffffdc80  0x00000000006033a0
     0x602860:   0x00007fffffffdc80  0x00000000006033a0
 ```
-
+{% endhighlight %}
 
 ## 参考：
 
-https://dangokyo.me/2018/04/07/a-revisit-to-large-bin-in-glibc/
+<https://dangokyo.me/2018/04/07/a-revisit-to-large-bin-in-glibc/>
 
-https://dangokyo.me/2018/04/07/0ctf-2018-pwn-heapstorm2-write-up/
+<https://dangokyo.me/2018/04/07/0ctf-2018-pwn-heapstorm2-write-up/>

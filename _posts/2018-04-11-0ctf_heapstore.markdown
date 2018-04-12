@@ -3,12 +3,12 @@ layout: post
 title: 奇淫技巧：利用unsorted chunk到large bin的攻击方案
 date: 2018-04-11 13:32:20 +0300
 description: 
-img: i-rest.jpg # Add image post (optional)
+img: kcah.jpg # Add image post (optional)
 tags: [pwn]
 ---
 首先来看看在unsorted bin中查找可用块的过程，从unsorted bin中最后一个块找起，利用bk指针进行遍历。若unsorted bin中只有1个块（该块是the last remainder），并且该块恰好适合申请大小，则直接分割该块，remainder chunk将被放进unsorted bin；若unsorted bin中有多个块，继续遍历，若找到一个大小刚好等于申请大小的unsorted chunk，直接返回该块；否则继续遍历，在unsorted bin中找块时，先把unsorted bin中的块全放进small bin/large bin，再根据最小最适合的原则在small bin/large bin中寻找并切割块，remainder chunk将被放进unsorted bin。
 
-实现此利用需要对unsorted chunk查找和插入large bin的代码非常熟悉，可参考对此过程相应源码的详细解读https://dangokyo.me/2018/04/07/a-revisit-to-large-bin-in-glibc/，也可以看我的博客https://bsauce.github.io/2018/04/10/review_largebin。
+实现此利用需要对unsorted chunk查找和插入large bin的代码非常熟悉，可参考对此过程相应源码的详细解读<https://dangokyo.me/2018/04/07/a-revisit-to-large-bin-in-glibc/>，也可以看我的博客<https://bsauce.github.io/2018/04/10/review_largebin>。
 
 我们利用的就是把unsorted chunk放进large bin的这个过程。large bin中的块，是从大到小排列，同一大小的首块的fd_nextsize（指向后一个小块），bk_nextsize（指向前一个大块）才有意义。
 
@@ -43,7 +43,7 @@ tags: [pwn]
 
   update功能中，堆上的1个null字节溢出。如图所示：
 
-
+![update2]({{site.baseurl}}/assets/img/update2.png)
 
 ## 3.问题
 
@@ -92,7 +92,8 @@ tags: [pwn]
 伪造点3：large chunk—y的bk_nextsize指针——目标地址-0x18-5（也即目标地址的size）。x插入到y前面时会有y-bk_nextsize=x，利用它和偏移差可以把目标地址的size写为0x55或0x56，看运气了。
 
 利用到了malloc.c中如下代码：
-
+{% highlight c %}
+```
     //1.从unsorted bin中移除块。若unsorted bin中含多个chunk,先把它从unsorted中取出来。house of orange用的是这一点。bck是移除块victim的bk(也即前一块)。
     unsorted_chunks (av)->bk = bck;   //伪造点1——目标块被插入到unsorted bin，这样下次遍历就去取用伪造块
     bck->fd = unsorted_chunks (av);   //伪造点1——目标块的fd指向unsorted bin(没用)
@@ -110,7 +111,8 @@ tags: [pwn]
     victim->fd = fwd;
     fwd->bk = victim;
     bck->fd = victim;         //伪造点2——fd处指向unsorted 移除块，可以使得目标块的BK改为这个移除块，这样下次遍历就到这个移除块了。伪造点2没必要，只要指向一个可访问地址即可，反正之后就不再申请块了，除非还需要申请块。
-
+```
+{% endhighlight%}
 #### 4.分配到目标地址
 
 malloc(0x48)  。#chunk2_ptr
@@ -119,13 +121,15 @@ malloc(0x48)  。#chunk2_ptr
 
   注意：必须目标地址的size==0x56，否则以下检查会出错。
 
+{% highlight c %}
     3436    mem = _int_malloc (av, sz);
     3437  
     3438    assert (!mem || chunk_is_mmapped (mem2chunk (mem)) ||
     3439            av == arena_for_chunk (mem2chunk (mem)));
-
+{% endhighlight%}
 可以看到目标地址处的情况：
 
+{% highlight c %}
     pwndbg> x /30xg 0x00000000133707e0-0x10
     0x133707d0: 0x0000000000000000  0x0000000000000000
     0x133707e0: 0x2108d1a060000000  0x0000000000000056
@@ -156,7 +160,7 @@ malloc(0x48)  。#chunk2_ptr
     0x562108d1a5c0: 0x0000000000000000  0x00000000000004e1
     0x562108d1a5d0: 0x0000000000000000  0x0000562108d1a060
     0x562108d1a5e0: 0x0000000000000000  0x0000562108d1a060
-
+{% endhighlight%}
 
 
 #### 5.泄露heap、libc  &  修改free_hook
@@ -183,7 +187,7 @@ malloc(0x48)  。#chunk2_ptr
 
   获得shell。
 
-exp可参见https://gist.github.com/Jackyxty/9de01a0bdfe5fb6d0b40fe066f059fa3 
+exp可参见<https://gist.github.com/Jackyxty/9de01a0bdfe5fb6d0b40fe066f059fa3>
 
 ## 5.问题再现
 
