@@ -12,7 +12,7 @@ tags: [pwn]
 
 我们利用的就是把unsorted chunk放进large bin的这个过程。large bin中的块，是从大到小排列，同一大小的首块的fd_nextsize（指向后一个小块），bk_nextsize（指向前一个大块）才有意义。
 
-首先以0CTF2018的一道题heapstore2来进行原理讲解。
+首先以0CTF2018的一道题heapstorm2来进行原理讲解。
 
 ## 1.功能分析
 首先调用mmap申请一段空间，地址已经确定为0x13370000，0x13370800用于存放数据（large_chunk）；同时调用mallopt(1,0)，即把global_fast_max改为0 ，禁用fastbin。总共能创建0-15个chunk。
