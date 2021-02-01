@@ -14,6 +14,8 @@ permalink: /about/
 
 学习使我头秃。
 
+Email: bsauce0@outlook.com
+
 ## 联系
 
 <ul>
