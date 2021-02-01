@@ -1,3 +1,9 @@
-_site
-.sass-cache
+_site/
+*.sw[po]
+*.~vsd
+\#*\#
+*~
+.DS_Store
+Gemfile.lock
+.vscode/
 .jekyll-metadata
